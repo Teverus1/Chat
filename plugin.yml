@@ -1,0 +1,322 @@
+# =============================================================== #
+#                          ChatPlugin                             #
+# =============================================================== #
+# Автор: Teverus
+# Версия: 1.0
+# Описание: Гибкий плагин для управления чатом и коммуникациями на сервере.
+#           Включает локальный/глобальный чат, приватные сообщения,
+#           систему игнорирования, RP-команды, кастомные префиксы,
+#           сообщения входа/выхода, форматирование ссылок и анти-спам/флуд.
+# Сайт: https://rpssurvival.trademc.org
+# =============================================================== #
+
+main: org.teverus.chat.ChatPlugin
+name: Chat
+version: 1.0
+api-version: 1.21 # Убедитесь, что это соответствует версии вашего сервера (например, 1.20, 1.21)
+author: Teverus
+description: Гибкий плагин для управления чатом и коммуникациями на сервере.
+website: https://rpssurvival.trademc.org
+softdepend: [AdventoraBans]
+
+commands:
+  # --- Основные команды чата ---
+  global:
+    description: Отправляет сообщение в глобальный чат (видно всем игрокам).
+    usage: /<command> <сообщение>
+    permission: chat.command.global
+    permission-message: "&cУ вас нет разрешения на использование глобального чата."
+  broadcast:
+    description: Отправить широковещательное объявление на сервер.
+    usage: /<command> <сообщение>
+    permission: chat.command.broadcast
+    permission-message: "&cУ вас нет разрешения на использование команды broadcast."
+  prefix:
+    description: Установить или очистить префикс чата для себя или другого игрока.
+    usage: |
+      /<command> <префикс>           - Установить свой префикс.
+      /<command> clear             - Очистить свой префикс.
+      /<command> <игрок> <префикс> - Установить префикс другому игроку (требуется доп. разрешение).
+      /<command> <игрок> clear    - Очистить префикс другого игрока (требуется доп. разрешение).
+    permission: chat.command.prefix
+    permission-message: "&cУ вас нет разрешения на управление префиксами."
+  chatreload:
+    description: Перезагружает конфигурацию плагина ChatPlugin.
+    usage: /<command>
+    permission: chat.command.reload
+    permission-message: "&cУ вас нет разрешения на перезагрузку плагина."
+
+  # --- Команды RP чата (Role Play) ---
+  me:
+    description: Выполняет RP-действие в локальном чате (/me *действие*).
+    usage: /<command> <действие>
+    permission: chat.command.rp.me
+    permission-message: "&cУ вас нет разрешения на использование этой RP-команды."
+  do:
+    description: Описывает состояние или событие в локальном чате (/do *описание*).
+    usage: /<command> <описание>
+    permission: chat.command.rp.do
+    permission-message: "&cУ вас нет разрешения на использование этой RP-команды."
+  try:
+    description: Пытается выполнить RP-действие с результатом (успех/неудача) в локальном чате.
+    usage: /<command> <действие>
+    permission: chat.command.rp.try
+    permission-message: "&cУ вас нет разрешения на использование этой RP-команды."
+  todo:
+    description: Объединяет RP-действие и речь в локальном чате.
+    usage: /<command> <действие>*<сообщение>
+    permission: chat.command.rp.todo
+    permission-message: "&cУ вас нет разрешения на использование этой RP-команды."
+  gme:
+    description: Выполняет RP-действие в глобальном чате (видно всем).
+    usage: /<command> <действие>
+    permission: chat.command.rp.gme
+    permission-message: "&cУ вас нет разрешения на использование глобальной RP-команды."
+  gdo:
+    description: Описывает состояние или событие в глобальном чате (видно всем).
+    usage: /<command> <описание>
+    permission: chat.command.rp.gdo
+    permission-message: "&cУ вас нет разрешения на использование глобальной RP-команды."
+  gtry:
+    description: Пытается выполнить RP-действие с результатом (успех/неудача) в глобальном чате (видно всем).
+    usage: /<command> <действие>
+    permission: chat.command.rp.gtry
+    permission-message: "&cУ вас нет разрешения на использование глобальной RP-команды."
+  gtodo:
+    description: Объединяет RP-действие и речь в глобальном чате (видно всем).
+    usage: /<command> <действие>*<сообщение>
+    permission: chat.command.rp.gtodo
+    permission-message: "&cУ вас нет разрешения на использование глобальной RP-команды."
+
+  # --- Команды личных сообщений и игнорирования ---
+  msg:
+    description: Отправить личное сообщение другому игроку.
+    usage: /<command> <игрок> <сообщение>
+    aliases: [m, message, tell]
+    permission: chat.command.message
+    permission-message: "&cУ вас нет разрешения на отправку личных сообщений."
+  reply:
+    description: Ответить на последнее полученное личное сообщение.
+    usage: /<command> <сообщение>
+    aliases: [r]
+    permission: chat.command.reply
+    permission-message: "&cУ вас нет разрешения на ответ личным сообщением."
+  ignore:
+    description: Игнорировать личные сообщения и чат от определенного игрока.
+    usage: /<command> <игрок>
+    permission: chat.command.ignore
+    permission-message: "&cУ вас нет разрешения на использование команды игнорирования."
+  unignore:
+    description: Отменить игнорирование личных сообщений и чата от определенного игрока.
+    usage: /<command> <игрок>
+    permission: chat.command.unignore
+    permission-message: "&cУ вас нет разрешения на использование команды разблокировки."
+  toggleprivatemessages:
+    description: Включает или выключает получение вами личных сообщений.
+    usage: /<command>
+    permission: chat.command.toggleprivatemessages
+    permission-message: "&cУ вас нет разрешения на переключение личных сообщений."
+
+  # --- Команды кастомных сообщений входа/выхода ---
+  joinmessage:
+    description: Установить или очистить ваше кастомное сообщение входа на сервер.
+    usage: |
+      /<command> <сообщение> - Установить свое сообщение входа.
+      /<command> clear     - Очистить свое сообщение входа.
+    permission: chat.command.joinmessage
+    permission-message: "&cУ вас нет разрешения на установку кастомного сообщения входа."
+  quitmessage:
+    description: Установить или очистить ваше кастомное сообщение выхода с сервера.
+    usage: |
+      /<command> <сообщение> - Установить свое сообщение выхода.
+      /<command> clear     - Очистить свое сообщение выхода.
+    permission: chat.command.quitmessage
+    permission-message: "&cУ вас нет разрешения на установку кастомного сообщения выхода."
+  clearchat:
+    description: Очищает чат для всех игроков.
+    usage: /<command>
+    permission: chat.clearchat
+    permission-message: "&cНедостаточно прав для использования этой команды."
+
+
+permissions:
+  # --- Общие разрешения плагина ---
+  chat.*:
+    description: Предоставляет доступ ко всем командам и функциям ChatPlugin.
+    default: op
+
+  # --- Разрешения для использования чата ---
+  chat.local:
+    description: Разрешает игрокам использовать локальный чат (по умолчанию).
+    default: true
+  chat.global:
+    description: Разрешает игрокам использовать глобальный чат (с '!' или /global).
+    default: true
+
+  # --- Разрешения для команд ---
+  chat.command.*:
+    description: Предоставляет доступ ко всем командам ChatPlugin.
+    default: op # Опeраторам по умолчанию
+  
+  chat.command.global:
+    description: Разрешает использовать команду /global.
+    default: true
+  chat.command.broadcast:
+    description: Разрешает использовать команду /broadcast.
+    default: op
+  chat.command.reload:
+    description: Разрешает использовать команду /chatreload для перезагрузки плагина.
+    default: op
+  
+  chat.command.prefix:
+    description: Разрешает игрокам устанавливать свой собственный префикс чата.
+    default: op # Игроки могут менять свой префикс
+  chat.command.prefix.other:
+    description: Разрешает игрокам устанавливать префиксы чата для других игроков.
+    default: op # Только для операторов/администраторов
+
+  chat.command.message:
+    description: Разрешает отправлять и получать личные сообщения (/msg, /tell, /m).
+    default: true
+  chat.command.reply:
+    description: Разрешает отвечать на последнее личное сообщение (/reply, /r).
+    default: true
+  chat.command.toggleprivatemessages:
+    description: Разрешает игрокам включать или выключать получение личных сообщений.
+    default: true
+  
+  chat.command.ignore:
+    description: Разрешает игрокам игнорировать других игроков (/ignore).
+    default: true
+  chat.command.unignore:
+    description: Разрешает игрокам отменять игнорирование других игроков (/unignore).
+    default: true
+
+  chat.command.joinmessage:
+    description: Разрешаает игрокам устанавливать свои кастомные сообщения входа.
+    default: op
+  chat.command.quitmessage:
+    description: Разрешает игрокам устанавливать свои кастомные сообщения выхода.
+    default: op
+
+  # --- Разрешения для RP-команд ---
+  chat.command.rp.*:
+    description: Предоставляет доступ ко всем RP-командам (локальным и глобальным).
+    default: true
+  chat.command.rp.me:
+    description: Разрешает использовать команду /me.
+    default: true
+  chat.command.rp.do:
+    description: Разрешает использовать команду /do.
+    default: true
+  chat.command.rp.try:
+    description: Разрешает использовать команду /try.
+    default: true
+  chat.command.rp.todo:
+    description: Разрешает использовать команду /todo.
+    default: true
+  
+  chat.command.rp.gme:
+    description: Разрешает использовать глобальную RP команду /gme.
+    default: true # Можно установить на true, если хотите, чтобы все могли использовать глобальные RP
+  chat.command.rp.gdo:
+    description: Разрешает использовать глобальную RP команду /gdo.
+    default: true
+  chat.command.rp.gtry:
+    description: Разрешает использовать глобальную RP команду /gtry.
+    default: true
+  chat.command.rp.gtodo:
+    description: Разрешает использовать глобальную RP команду /gtodo.
+    default: true
+  
+  # --- Разрешения для обхода фильтров чата ---
+  chat.antiflood.bypass:
+    description: Разрешает игрокам обходить проверки анти-флуда (для модераторов/админов).
+    default: op
+  chat.antispam.bypass:
+    description: Разрешает игрокам обходить проверки анти-спама (для модераторов/админов).
+    default: op
+
+  # --- Дополнительные разрешения (если понадобится) ---
+  chat.linkformatting.bypass:
+    description: Разрешает игрокам отправлять ссылки без автоматического форматирования (если включено).
+    default: false # Обычно не нужно, но может быть полезно для отладки.
+
+  # =============================================================== #
+  #            Разрешения для ЦВЕТОВ и ФОРМАТИРОВАНИЯ чата          #
+  # =============================================================== #
+  chat.color.bypass:
+    description: Позволяет использовать любые цветовые коды и форматирование, игнорируя другие chat.color/format разрешения.
+    default: op # Обычно для администраторов
+
+  chat.color.*:
+    description: Позволяет использовать ВСЕ цветовые коды в чате (например, &c, &a, &b).
+    default: false
+  chat.color.black:
+    description: Разрешает использовать цвет &0 (черный).
+    default: false
+  chat.color.dark_blue:
+    description: Разрешает использовать цвет &1 (темно-синий).
+    default: false
+  chat.color.dark_green:
+    description: Разрешает использовать цвет &2 (темно-зеленый).
+    default: false
+  chat.color.dark_aqua:
+    description: Разрешает использовать цвет &3 (темно-бирюзовый).
+    default: false
+  chat.color.dark_red:
+    description: Разрешает использовать цвет &4 (темно-красный).
+    default: false
+  chat.color.dark_purple:
+    description: Разрешает использовать цвет &5 (темно-фиолетовый).
+    default: false
+  chat.color.gold:
+    description: Разрешает использовать цвет &6 (золотой).
+    default: false
+  chat.color.gray:
+    description: Разрешает использовать цвет &7 (серый).
+    default: false
+  chat.color.dark_gray:
+    description: Разрешает использовать цвет &8 (темно-серый).
+    default: false
+  chat.color.blue:
+    description: Разрешает использовать цвет &9 (синий).
+    default: false
+  chat.color.green:
+    description: Разрешает использовать цвет &a (зеленый).
+    default: false
+  chat.color.aqua:
+    description: Разрешает использовать цвет &b (бирюзовый).
+    default: false
+  chat.color.red:
+    description: Разрешает использовать цвет &c (красный).
+    default: false
+  chat.color.light_purple:
+    description: Разрешает использовать цвет &d (светло-фиолетовый).
+    default: false
+  chat.color.yellow:
+    description: Разрешает использовать цвет &e (желтый).
+    default: false
+  chat.color.white:
+    description: Разрешает использовать цвет &f (белый).
+    default: false
+
+  chat.format.*:
+    description: Позволяет использовать ВСЕ коды форматирования в чате (например, &l, &o, &m, &n, &k).
+    default: false
+  chat.format.magic:
+    description: Разрешает использовать форматирование &k (случайные символы).
+    default: false
+  chat.format.bold:
+    description: Разрешает использовать форматирование &l (жирный).
+    default: false
+  chat.format.strikethrough:
+    description: Разрешает использовать форматирование &m (зачеркнутый).
+    default: false
+  chat.format.underline:
+    description: Разрешает использовать форматирование &n (подчеркнутый).
+    default: false
+  chat.format.italic:
+    description: Разрешает использовать форматирование &o (курсив).
+    default: false
+  # &r (reset) не требует отдельного пермишена и обрабатывается в ChatUtils.translateColorsWithPermissions
